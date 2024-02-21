@@ -1,6 +1,7 @@
 import { Selectors } from "../pages/Page_object.spec";
 //expect helps you make some assertions
 import {expect,test} from "@playwright/test";
+//mailosaur class
 const Mailosaur = require("mailosaur")
 const apiKey ="RY8iAdvBHll56M8XOMIpNRhKLy9KUKTa"
 const mailosaur = new Mailosaur(apiKey)
@@ -24,4 +25,10 @@ test("Signup and retrieve email content", async ({page})=>{
     await page.fill(Selectors.last_name_field, "Durant")
     await page.fill(Selectors.email_field, emailAddress)
     await page.click(Selectors.submit_button)
+
+//This block of code is used to retrieve/confirm the email sent
+    const email= await mailosaur.messages.get(serverID, {sentTo: emailAddress})
+    await expect(email.subject).toEqual("Welcome to ACME Product")
+    let confirm_signup_link = email.html.links[0].href
+    await page.goto(confirm_signup_link)
 })
